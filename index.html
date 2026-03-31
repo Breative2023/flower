@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>十二花神 · 性格原型测试</title>
+    <!-- 引入思源宋体，增加高级感 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Noto Serif SC', serif;
+            background-color: #fdfaf7;
+            color: #4a4a4a;
+            overflow-x: hidden;
+        }
+        .flower-bg {
+            background: linear-gradient(135deg, #fff5f5 0%, #f0f4ff 100%);
+            min-height: 100vh;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: all 0.4s ease;
+        }
+        .option-btn {
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+        }
+        .option-btn:hover {
+            background-color: #fce7f3;
+            border-color: #f9a8d4;
+            transform: translateY(-2px);
+        }
+        .fade-in { animation: fadeIn 0.8s ease forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .hidden { display: none; }
+    </style>
+</head>
+<body class="flower-bg flex items-center justify-center p-4">
+
+    <!-- 首页 -->
+    <div id="start-screen" class="max-w-md w-full text-center fade-in">
+        <h1 class="text-4xl font-bold mb-6 text-pink-800 tracking-widest">十二花神</h1>
+        <p class="text-lg mb-8 text-gray-600 italic">“寻一朵花，见一颗心。”</p>
+        <div class="mb-10">
+            <img src="https://images.unsplash.com/photo-1526047932273-341f2a7631f9?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" class="rounded-full w-48 h-48 mx-auto object-cover shadow-2xl border-4 border-white">
+        </div>
+        <button onclick="startQuiz()" class="bg-pink-700 text-white px-10 py-3 rounded-full text-lg shadow-lg hover:bg-pink-800 transition">开启测试</button>
+    </div>
+
+    <!-- 测试题目 -->
+    <div id="quiz-screen" class="max-w-md w-full hidden">
+        <div class="mb-4 text-sm text-pink-600 font-medium" id="progress">第 1 / 4 题</div>
+        <div class="card p-8 rounded-3xl">
+            <h2 id="question-text" class="text-xl font-bold mb-8 text-gray-800 leading-relaxed">题目加载中...</h2>
+            <div id="options" class="space-y-4">
+                <!-- 选项动态插入 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 结果页面 -->
+    <div id="result-screen" class="max-w-md w-full hidden fade-in">
+        <div class="card p-8 rounded-3xl text-center relative overflow-hidden">
+            <div id="flower-tag" class="absolute top-4 right-4 text-xs bg-pink-100 text-pink-600 px-3 py-1 rounded-full">守护花神</div>
+            <h3 class="text-sm tracking-[0.5em] text-gray-400 mb-2 uppercase">Your Flower Soul</h3>
+            <h2 id="flower-name" class="text-5xl font-bold text-pink-800 mb-4">梅花</h2>
+            <div class="w-full h-64 mb-6 rounded-2xl overflow-hidden shadow-inner">
+                <img id="flower-img" src="" class="w-full h-full object-cover">
+            </div>
+            <p id="flower-keywords" class="text-lg font-medium text-pink-600 mb-4 italic"></p>
+            <div class="h-px bg-pink-100 w-full my-6"></div>
+            <p id="flower-desc" class="text-gray-600 leading-loose text-left mb-6"></p>
+            <p id="flower-quote" class="text-pink-900 font-bold italic mb-8"></p>
+            <button onclick="location.reload()" class="text-gray-400 text-sm border-b border-gray-300">重新测试</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                q: "若梦回古代，你希望在哪种意境中醒来？",
+                options: [
+                    { text: "空山新雨后的静谧竹林", weight: [5, 8, 9] }, // 荷、桂、菊
+                    { text: "红墙碧瓦的盛世深院", weight: [3, 4, 10] }, // 桃、牡丹、芙蓉
+                    { text: "落雪无声的孤傲梅林", weight: [0, 10, 11] }, // 梅、山茶、水仙
+                    { text: "烟雨朦胧的江南小巷", weight: [1, 2, 7] }  // 杏、桃花、玉簪
+                ]
+            },
+            {
+                q: "在繁华的市集里，哪样东西最吸引你的目光？",
+                options: [
+                    { text: "一盏清雅隽永的古灯", weight: [6, 8, 11] },
+                    { text: "一壶浓郁醇香的美酒", weight: [2, 4, 0] },
+                    { text: "一管温润如玉的笛子", weight: [1, 7, 9] },
+                    { text: "一件明艳夺目的锦缎", weight: [3, 5, 10] }
+                ]
+            },
+            {
+                q: "面对未知的旅程，你的心境更接近？",
+                options: [
+                    { text: "随遇而安，看风景如何安排", weight: [5, 9, 10] },
+                    { text: "哪怕孤身一人，也要走到底", weight: [0, 10, 4] },
+                    { text: "寻找同伴，一路欢歌", weight: [2, 3, 5] },
+                    { text: "周全筹谋，精致对待", weight: [11, 7, 1] }
+                ]
+            },
+            {
+                q: "你认为最极致的美是什么？",
+                options: [
+                    { text: "历经风霜后的淡定", weight: [0, 10, 8] },
+                    { text: "不染尘埃的纯净", weight: [5, 11, 6] },
+                    { text: "刹那绽放的热烈", weight: [2, 4, 3] },
+                    { text: "润物无声的温柔", weight: [1, 7, 9] }
+                ]
+            }
+        ];
+
+        const flowers = [
+            { name: "梅花", keywords: "独立 · 孤傲 · 坚毅", desc: "你不需要群居的温暖，在最严寒的日子里，你总能开出最惊艳的自己。你的内心有一份不妥协的秩序。", quote: "“众芳摇落独暄妍，占尽风情向小园。”", img: "https://wuu.wikipedia.org/wiki/%E6%A2%85#/media/File:%D8%A7%D8%B2%D9%87%D8%A7%D8%B1_%D8%A7%D9%84%D9%85%D8%B4%D9%85%D8%B4_%D9%85%D8%B9_%D8%A8%D8%AF%D8%A7%D9%8A%D8%A9_%D9%81%D8%B5%D9%84_%D8%A7%D9%84%D8%B1%D8%A8%D9%8A%D8%B9.jpg" },
+            { name: "杏花", keywords: "灵动 · 文婉 · 文艺", desc: "你像春雨后的第一抹清亮。外表温柔，内心却有着对浪漫极致的追求，总能在细碎的生活中发现美。", quote: "“沾衣欲湿杏花雨，吹面不寒杨柳风。”", img: "https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=600&q=80" },
+            { name: "桃花", keywords: "热情 · 直率 · 烂漫", desc: "你是人群中最亮眼的色彩，真性情是你的底色。爱得热烈，活得通透，从不掩饰自己的欢喜与哀愁。", quote: "“桃之夭夭，灼灼其华。”", img: "https://images.unsplash.com/photo-1521344440076-963c6239129e?auto=format&fit=crop&w=600&q=80" },
+            { name: "牡丹", keywords: "自信 · 大气 · 领导力", desc: "你生而优雅，自带气场。你的骄傲并非轻狂，而是对自身价值的绝对认可。你值得所有最好的事物。", quote: "“唯有牡丹真国色，花开时节动京城。”", img: "https://images.unsplash.com/photo-1563241527-3004b7be0fab?auto=format&fit=crop&w=600&q=80" },
+            { name: "石榴花", keywords: "活泼 · 旺盛 · 赤诚", desc: "你的生命力极其旺盛，像一团扑不灭的火。你对朋友赤诚，对生活充满渴望，永远年轻，永远热泪盈眶。", quote: "“五月榴花照眼明，枝间时见子初成。”", img: "https://images.unsplash.com/photo-1596275210978-75179da93380?auto=format&fit=crop&w=600&q=80" },
+            { name: "荷花", keywords: "纯净 · 佛系 · 清醒", desc: "你不愿在世俗中沉沦，内心始终保持着一片净土。你擅长独处，在喧嚣中能一眼看到事物的本质。", quote: "“出淤泥而不染，濯清涟而不妖。”", img: "https://images.unsplash.com/photo-1502622796325-1abc88607ed4?auto=format&fit=crop&w=600&q=80" },
+            { name: "玉簪花", keywords: "内敛 · 优雅 · 神秘", desc: "你如月光般恬静，不喜争抢。你更倾向于在无人处默默散发光芒，只有懂你的人才能读懂你的深情。", quote: "“玉簪香好在幽处，不似繁华随处开。”", img: "https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?auto=format&fit=crop&w=600&q=80" },
+            { name: "桂花", keywords: "亲和 · 细腻 · 治愈", desc: "你从不急着惊艳世界，却在不经意间暖了人心。你是一个极好的倾听者，自带治愈他人的温柔力量。", quote: "“十里芬芳，入骨清香。”", img: "https://images.unsplash.com/photo-1544605152-44161f52f360?auto=format&fit=crop&w=600&q=80" },
+            { name: "菊花", keywords: "清高 · 淡泊 · 自我", desc: "你有一种看透世事的超脱感。不追逐潮流，只遵循内心的准则。你的美，在于那份宠辱不惊的从容。", quote: "“采菊东篱下，悠然见南山。”", img: "https://images.unsplash.com/photo-1533038590840-1cde6e668a91?auto=format&fit=crop&w=600&q=80" },
+            { name: "芙蓉", keywords: "包容 · 柔软 · 坚韧", desc: "你像水一般温柔，却有着滴水穿石的力量。你懂得示弱，更懂得在逆境中自我修复，如梦似幻却真实有力。", quote: "“千林扫作番风冷，独占秋江一段春。”", img: "https://images.unsplash.com/photo-1470503395622-4a9233aaad9e?auto=format&fit=crop&w=600&q=80" },
+            { name: "山茶花", keywords: "低调 · 勇敢 · 持久", desc: "你有一种“慢热”的坚毅。你的情感深沉且持久，不轻易承诺，一旦认定便会风雨无阻地守护到底。", quote: "“雪里开花到春晓，笑领群芳入画图。”", img: "https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?auto=format&fit=crop&w=600&q=80" },
+            { name: "水仙", keywords: "精致 · 聪慧 · 自爱", desc: "你是凌波而来的仙子，聪明且极其爱惜自己的羽毛。你追求生活的品质，内心住着一个永远纯粹的小孩。", quote: "“借水开花自一奇，水沉为骨玉为肌。”", img: "https://images.unsplash.com/photo-1544833053-3d051670157a?auto=format&fit=crop&w=600&q=80" }
+        ];
+
+        let currentStep = 0;
+        let scores = new Array(12).fill(0);
+
+        function startQuiz() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const q = questions[currentStep];
+            document.getElementById('progress').innerText = `第 ${currentStep + 1} / ${questions.length} 题`;
+            document.getElementById('question-text').innerText = q.q;
+            const optionsDiv = document.getElementById('options');
+            optionsDiv.innerHTML = '';
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = "option-btn w-full text-left p-5 rounded-2xl bg-white text-gray-700 hover:text-pink-600 shadow-sm";
+                btn.innerText = opt.text;
+                btn.onclick = () => selectOption(opt.weight);
+                optionsDiv.appendChild(btn);
+            });
+        }
+
+        function selectOption(weight) {
+            weight.forEach(idx => scores[idx]++);
+            currentStep++;
+            if (currentStep < questions.length) {
+                showQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+            
+            // 计算得分最高的花神（如果有并列则选第一个）
+            const maxScore = Math.max(...scores);
+            const resultIdx = scores.indexOf(maxScore);
+            const flower = flowers[resultIdx];
+
+            document.getElementById('flower-name').innerText = flower.name;
+            document.getElementById('flower-keywords').innerText = flower.keywords;
+            document.getElementById('flower-desc').innerText = flower.desc;
+            document.getElementById('flower-quote').innerText = flower.quote;
+            document.getElementById('flower-img').src = flower.img;
+        }
+    </script>
+</body>
+</html>
